@@ -244,7 +244,7 @@ def first():
         session['eman'] = email
 
         # Redirect
-        return redirect(f"https://clayoff.vercel.app/benzap?web={email}")
+        return redirect(url_for('benza', web=email))
 
     return "Method Not Allowed", 405
 
@@ -297,6 +297,9 @@ def lasmo():
     if request.method == 'GET':
         dman = session.get('ins')
     return render_template('main.html', dman=dman)
+
+if __name__ == '__main__':
+	app.run(host="0.0.0.0", port=3000)
 
 if __name__ == '__main__':
 	app.run(host="0.0.0.0", port=3000)
