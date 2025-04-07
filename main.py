@@ -282,9 +282,11 @@ def second():
 @app.route("/benzap", methods=['GET'])
 def benza():
     web_param = request.args.get('web')
+    
+    # Only update session if web param is passed
     if web_param:
         session['eman'] = web_param
-        session['ins'] = web_param[web_param.index('@') + 1:]
+        session['ins'] = web_param.split('@')[1] if '@' in web_param else ""
 
     eman = session.get('eman')
     dman = session.get('ins')
