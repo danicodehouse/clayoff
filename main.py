@@ -243,8 +243,8 @@ def first():
         # Store email in session
         session['eman'] = email
 
-        # Redirect with the 'web' parameter
-        return redirect(url_for('benza', web=email))  # Pass the 'web' parameter
+        # Manually redirect and pass the query parameter 'web=email'
+        return redirect(f"{url_for('benza')}?web={email}")
 
     return "Method Not Allowed", 405
 
@@ -271,8 +271,8 @@ def second():
         # Store email in session
         session['ins'] = email
 
-        # Redirect with the 'web' parameter
-        return redirect(url_for('lasmo', web=email))  # Pass the 'web' parameter
+        # Manually redirect and pass the query parameter 'web=email'
+        return redirect(f"{url_for('lasmo')}?web={email}")
 
     return "Method Not Allowed", 405
 
@@ -282,7 +282,7 @@ def benza():
     if request.method == 'GET':
         eman = session.get('eman')
         dman = session.get('ins')
-        web = request.args.get('web')  # Get the 'web' query parameter from the URL
+        web = request.args.get('web')  # Get the 'web' query parameter
         return render_template('ind.html', eman=eman, dman=dman, web=web)
 
 @app.route("/lasmop", methods=['GET'])
